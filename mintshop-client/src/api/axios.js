@@ -3,8 +3,6 @@ ajax 请求函数模块:通用性，拦截功能
 */
 import axios from 'axios'
 
-const REFRESH_URL = '/api/refresh' // 刷新token 地址
-
 function post (url = '', data = {}, token) {
   const headToken = 'Bearer ' + token
   return new Promise(function (resolve, reject) {
@@ -63,14 +61,14 @@ function checkIsTokenOutTime (data) {
     return false
   }
   let flag = data.code
-  if (flag && flag > 10040 && flag < 10049) {
+  if (flag && flag >= 10040 && flag <= 10049) {
     return true
   }
   return false
 }
 
-async function refreshToken (url) {
-  let db = await get(url, {}, 'refresh-token-get')
+async function refreshToken (url, refreshToken) {
+  let db = await get(url, {}, refreshToken)
   try {
     let flag = db.code
     if (flag === 0) {
@@ -82,24 +80,26 @@ async function refreshToken (url) {
   return false
 }
 
-async function axiosData (url = '', data = {}, type = 'GET') {
+async function axiosData (url = '', data = {}, type = 'GET', token) {
   let db
   if (type === 'GET') {
-    db = await get(url, data, 'xxx-get')
+    db = await get(url, data, token)
   } else {
-    db = await post(url, data, 'xxx-post')
+    db = await post(url, data, token)
   }
   return db
 }
 
+const REFRESH_URL = '/api/refresh' // 刷新token 地址
+
 export default async function myAxios (url = '', data = {}, type = 'GET') {
   // 返回值 Promise对象 （异步返回的数据是response.data，而不是response）
-  let db = await axiosData(url, data, type)
+  let db = await axiosData(url, data, type, 'token -from localStore')
   // 数据拦截:token 是否过期
   if (checkIsTokenOutTime(db)) {
-    let ok = refreshToken(REFRESH_URL) // 刷新token
+    let ok = refreshToken(REFRESH_URL, 'get refreshToken') // 刷新token
     if (ok) {
-      db = await axiosData(url, data, type) // 重新取数据
+      db = await axiosData(url, data, type, 'token -from localStore') // 重新取数据
     }
   }
   return db
