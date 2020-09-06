@@ -1,7 +1,7 @@
 /*
 与后台交互模块 （依赖已封装的ajax函数）
  */
-import ajax from './ajax'
+import ajax from './axios' // './ajax' //
 // const BASE_URL = 'http://local:4000'
 const BASE_URL = '/api'
 /**
