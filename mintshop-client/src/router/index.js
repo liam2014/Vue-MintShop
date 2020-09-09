@@ -25,8 +25,8 @@ Vue.use(VueRouter)
 
 // 配置路由表并导出
 export default new VueRouter({
-  //  去掉地址中的哈希#
-  mode: 'history',
+  //  去掉地址中的哈希# (本地运行： hash| 路径： history)
+  mode: 'hash',
   routes: [
     {
       path: '/',
