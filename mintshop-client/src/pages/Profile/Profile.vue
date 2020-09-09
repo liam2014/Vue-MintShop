@@ -101,6 +101,8 @@
 import HeaderTop from '../../components/HeaderTop/HeaderTop.vue'
 import {mapState} from 'vuex'
 import { MessageBox, Toast } from 'mint-ui'
+import {reqUserInfo} from '../../api'
+
 export default {
   components: {
     HeaderTop
@@ -108,7 +110,19 @@ export default {
   computed: {
     ...mapState(['userInfo'])
   },
+  data () {
+    return {
+    }
+  },
   methods: {
+    async checkUserInfo () {
+      let info = await reqUserInfo()
+      console.log('userData:', info)
+      if (info.code !== 0) {
+        Toast('账号异常，请重新登录')
+        this.$store.dispatch('logout')
+      }
+    },
     logout () {
       MessageBox.confirm('确认退出吗?').then(
         action => {
@@ -121,6 +135,11 @@ export default {
         }
       )
     }
+  },
+  async mounted () {
+    // this.getInfo()
+    console.log('userInfo==', this.userInfo)
+    await this.checkUserInfo()
   }
 }
 </script>
