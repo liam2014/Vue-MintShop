@@ -61,23 +61,23 @@ export function checkIsTokenOutTime (data) {
     return false
   }
   let flag = data.code
-  if (flag && flag >= 10040 && flag <= 10049) {
+  if (flag && flag >= 10041 && flag <= 10049) {
     return true
   }
   return false
 }
 
-export async function refreshToken (url, refreshToken) {
+export async function getRefreshToken (url, refreshToken) {
   let db = await get(url, {}, refreshToken)
   try {
     let flag = db.code
     if (flag === 0) {
-      return true
+      return db
     }
   } catch (e) {
-    return false
+    return null
   }
-  return false
+  return null
 }
 
 export async function send (url = '', data = {}, type = 'GET', token) {

@@ -1,19 +1,20 @@
 /*
 与后台交互模块 （依赖已封装的ajax函数）
  */
-import {send, checkIsTokenOutTime, refreshToken} from './axios' // './ajax' //
+import {send, checkIsTokenOutTime, getRefreshToken} from './axios' // './ajax' //
 import { getToken, saveTokens } from '../util/token'
 const BASE_URL = 'http://localhost:4001'
 // const BASE_URL = '/api'
-const REFRESH_URL = BASE_URL + '/api/refresh' // 刷新token 地址
+const REFRESH_URL = BASE_URL + '/api_app/api/v1/user/refresh' // 刷新token 地址
 
 // 发送数据
 async function ajax (url = '', data = {}, type = 'GET') {
   let db = await send(url, data, type, getToken('access_token'))
   // 数据拦截:token 是否过期
   if (checkIsTokenOutTime(db)) {
-    let ok = refreshToken(REFRESH_URL, getToken('refresh_token')) // 刷新token
-    if (ok) {
+    let ok = await getRefreshToken(REFRESH_URL, getToken('refresh_token')) // 刷新token
+    console.log('refresh-token:', ok)
+    if (ok && ok.code === 0) {
       saveTokens(ok.data.access_token, ok.data.refresh_token)
       db = await send(url, data, type, ok.data.access_token) // 重新取数据
     }

@@ -119,7 +119,7 @@ export default {
     async checkUserInfo () {
       let info = await reqUserInfo()
       console.log('userData:', info)
-      if (info.code !== 0) {
+      if (info.code < 10060 && info.code > 10040) {
         Toast('账号异常，请重新登录')
         this.$store.dispatch('logout')
       }

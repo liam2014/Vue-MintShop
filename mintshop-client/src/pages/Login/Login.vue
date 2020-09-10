@@ -164,9 +164,9 @@ export default {
         this.$router.replace('/profile')
       } else {
         // 显示新的图片验证码
-        this.getCaptcha()
+        // this.getCaptcha()
         // 显示警告提示
-        const msg = result.msg
+        const msg = '登录不成功，请验证账号与密码' // result.msg
         this.showAlert(msg)
       }
     },
