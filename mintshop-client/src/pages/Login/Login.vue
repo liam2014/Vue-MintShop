@@ -36,10 +36,12 @@
                   <span class="switch_text">{{showPwd ? 'abc' : '...'}}</span>
                 </div>
               </section>
+              <!--
               <section class="login_message">
                 <input type="text" maxlength="11" placeholder="验证码" v-model="captcha">
                 <img class="get_verification" src="http://localhost:4000/captcha" alt="captcha" @click="getCaptcha" ref="captcha">
               </section>
+              -->
             </section>
           </div>
           <button class="login_submit">登录</button>
@@ -56,7 +58,8 @@
 </template>
 <script>
 import AlertTip from '../../components/AlertTip/AlertTip.vue'
-import {reqSendCode, reqSmsLogin, reqPwdLogin} from '../../api'
+import {reqSendCode, reqSmsLogin, reqPwdLogin, reqUserInfo} from '../../api'
+import { saveTokens } from '../../util/token'
 export default {
   data () {
     return {
@@ -133,11 +136,12 @@ export default {
           // 密码必须指定
           this.showAlert('密码必须指定')
           return
-        } else if (!this.captcha) {
-          // 验证码必须指定
-          this.showAlert('验证码必须指定')
-          return
         }
+        // else if (!this.captcha) {
+        //   // 验证码必须指定
+        //   this.showAlert('验证码必须指定')
+        //   return
+        // }
         // 发送ajax请求密码登陆
         result = await reqPwdLogin({name, pwd, captcha})
       }
@@ -151,7 +155,9 @@ export default {
 
       // 根据结果数据处理
       if (result.code === 0) {
-        const user = result.data
+        this.loginCallBack(result)
+        let info = await reqUserInfo()
+        const user = info.data
         // 将user保存到vuex的state
         this.$store.dispatch('recordUser', user)
         // 去个人中心界面
@@ -177,6 +183,9 @@ export default {
     getCaptcha () {
       // 每次指定的src要不一样
       this.$refs.captcha.src = 'http://localhost:4000/captcha?time=' + Date.now()
+    },
+    loginCallBack (db) {
+      saveTokens(db.data.access_token, db.data.refresh_token)
     }
   },
   components: {

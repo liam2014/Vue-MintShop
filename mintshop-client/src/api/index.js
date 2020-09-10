@@ -1,9 +1,26 @@
 /*
 与后台交互模块 （依赖已封装的ajax函数）
  */
-import ajax from './axios' // './ajax' //
+import {send, checkIsTokenOutTime, refreshToken} from './axios' // './ajax' //
+import { getToken, saveTokens } from '../util/token'
 const BASE_URL = 'http://localhost:4001'
 // const BASE_URL = '/api'
+const REFRESH_URL = BASE_URL + '/api/refresh' // 刷新token 地址
+
+// 发送数据
+async function ajax (url = '', data = {}, type = 'GET') {
+  let db = await send(url, data, type, getToken('access_token'))
+  // 数据拦截:token 是否过期
+  if (checkIsTokenOutTime(db)) {
+    let ok = refreshToken(REFRESH_URL, getToken('refresh_token')) // 刷新token
+    if (ok) {
+      saveTokens(ok.data.access_token, ok.data.refresh_token)
+      db = await send(url, data, type, ok.data.access_token) // 重新取数据
+    }
+  }
+  return db
+}
+
 /**
  * 获取地址信息(根据经纬度串)
  * 这个接口的经纬度参数是在url路径里的，没有query参数
@@ -26,7 +43,7 @@ export const reqSearchShop = (geohash, keyword) => ajax(BASE_URL + '/api_app/api
 /**
  * 账号密码登录
  */
-export const reqPwdLogin = ({name, pwd, captcha}) => ajax(BASE_URL + '/api_app/api/v1/user/login-pwd', {name, pwd, captcha}, 'POST')
+export const reqPwdLogin = ({name, pwd, captcha}) => ajax(BASE_URL + '/api_app/api/v1/user/login-pwd', {username: name, password: pwd, client: 2, login_flag: 1}, 'POST')
 /**
  * 获取短信验证码
  */
@@ -34,7 +51,7 @@ export const reqSendCode = phone => ajax(BASE_URL + '/api_app/api/v1/user/login-
 /**
  * 手机号验证码登录
  */
-export const reqSmsLogin = (phone, code) => ajax(BASE_URL + '/api_app/api/v1/user/login-sms', {phone, code}, 'POST')
+export const reqSmsLogin = (phone, code) => ajax(BASE_URL + '/api_app/api/v1/user/login-sms', {phone, code, client: 2, login_flag: 1}, 'POST')
 /**
  * 获取用户信息(根据会话)
  */

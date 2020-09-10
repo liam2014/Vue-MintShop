@@ -102,6 +102,7 @@ import HeaderTop from '../../components/HeaderTop/HeaderTop.vue'
 import {mapState} from 'vuex'
 import { MessageBox, Toast } from 'mint-ui'
 import {reqUserInfo} from '../../api'
+import {removeToken} from '../../util/token'
 
 export default {
   components: {
@@ -129,6 +130,7 @@ export default {
           // 请求退出
           this.$store.dispatch('logout')
           Toast('退出成功')
+          removeToken()
         },
         action => {
           console.log('取消登录')

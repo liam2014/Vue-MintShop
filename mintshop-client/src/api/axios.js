@@ -3,8 +3,8 @@ ajax 请求函数模块:通用性，拦截功能
 */
 import axios from 'axios'
 
-function post (url = '', data = {}, token) {
-  const headToken = 'Bearer ' + token
+export function post (url = '', data = {}, token) {
+  const headToken = token
   return new Promise(function (resolve, reject) {
     let promise = axios({
       method: 'post',
@@ -25,7 +25,7 @@ function post (url = '', data = {}, token) {
   })
 }
 
-function get (url = '', data = {}, token) {
+export function get (url = '', data = {}, token) {
   let dataStr = '' // 数据拼接字符串，将data连接到url
   Object.keys(data).forEach(key => {
     dataStr += key + '=' + data[key] + '&'
@@ -34,7 +34,7 @@ function get (url = '', data = {}, token) {
     dataStr = dataStr.substring(0, dataStr.lastIndexOf('&'))
     url = url + '?' + dataStr
   }
-  const headToken = 'Bearer ' + token
+  const headToken = token
   return new Promise(function (resolve, reject) {
     let promise = axios({
       method: 'get',
@@ -56,7 +56,7 @@ function get (url = '', data = {}, token) {
   })
 }
 
-function checkIsTokenOutTime (data) {
+export function checkIsTokenOutTime (data) {
   if (data === null || data === undefined) {
     return false
   }
@@ -67,7 +67,7 @@ function checkIsTokenOutTime (data) {
   return false
 }
 
-async function refreshToken (url, refreshToken) {
+export async function refreshToken (url, refreshToken) {
   let db = await get(url, {}, refreshToken)
   try {
     let flag = db.code
@@ -80,7 +80,7 @@ async function refreshToken (url, refreshToken) {
   return false
 }
 
-async function axiosData (url = '', data = {}, type = 'GET', token) {
+export async function send (url = '', data = {}, type = 'GET', token) {
   let db
   if (type === 'GET') {
     db = await get(url, data, token)
@@ -90,17 +90,19 @@ async function axiosData (url = '', data = {}, type = 'GET', token) {
   return db
 }
 
+/*
 const REFRESH_URL = '/api/refresh' // 刷新token 地址
 
 export default async function myAxios (url = '', data = {}, type = 'GET') {
   // 返回值 Promise对象 （异步返回的数据是response.data，而不是response）
-  let db = await axiosData(url, data, type, 'token -from localStore')
+  let db = await send(url, data, type, 'token -from localStore')
   // 数据拦截:token 是否过期
   if (checkIsTokenOutTime(db)) {
     let ok = refreshToken(REFRESH_URL, 'get refreshToken') // 刷新token
     if (ok) {
-      db = await axiosData(url, data, type, 'token -from localStore') // 重新取数据
+      db = await send(url, data, type, 'token -from localStore') // 重新取数据
     }
   }
   return db
 }
+*/
